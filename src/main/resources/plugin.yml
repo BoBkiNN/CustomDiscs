@@ -1,0 +1,11 @@
+name: CustomDiscs
+version: '${project.version}'
+main: xyz.bobkinn_.customdiscs.Main
+api-version: 1.18
+author: BoBkiNN_
+
+commands:
+  customdiscs:
+    description: CustomDiscs main command
+    aliases:
+      - cd

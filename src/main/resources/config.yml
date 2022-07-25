@@ -1,0 +1,16 @@
+discs:
+  - "minecraft:music_disc_mellohi=my_discs:portal_radio=2004"
+enable-playing_msg: true
+names:
+  - "my_discs:portal_radio=&bPortal radio"
+use-colored-name-in-msg: false
+use-colored-desc: false
+remove-item-in-creative: false
+allow-spectator-use: false
+messages:
+  reload: "&aReloaded!"
+  disc-list-top: "&a----==== &bLoaded custom discs (%count%): &a====----"
+  disc-list-entry: "&c№%index% &7- S: &c%sound%&7, N: &c%name%&7,\nCMD: &c%cmd%&7, M: &c%item%"
+  #disc-list-bottom: "&a----========" # uncomment this line to enable sending
+  no-permission: "&cI'm sorry, but you do not have permission to perform this command."
+  override-paper-no-permission-msg: false
