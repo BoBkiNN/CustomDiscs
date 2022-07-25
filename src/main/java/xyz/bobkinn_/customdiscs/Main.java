@@ -206,7 +206,7 @@ public final class Main extends JavaPlugin implements Listener {
                             fName = ChatColor.stripColor(fName);
                         }
                         TranslatableComponent actBarTr = new TranslatableComponent("record.nowPlaying", fName);
-                        new playingMsgSend(e,actBarTr).start();
+                        new PlayingMsgThread(e,actBarTr).start();
                     }
                     e.setCancelled(true);
                     break;

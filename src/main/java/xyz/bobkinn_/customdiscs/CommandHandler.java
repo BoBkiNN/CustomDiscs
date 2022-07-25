@@ -30,7 +30,10 @@ public class CommandHandler implements CommandExecutor {
             return true;
         }
         if (args[0].equalsIgnoreCase("list")){
-
+            if (!sender.hasPermission("customdiscs.list") || !sender.isOp()){
+                sender.sendMessage(Utils.noPermMsg());
+                return false;
+            }
             String listTop = Main.configuration.getString("messages.disc-list-top","&a----==== &bLoaded custom discs (%count%):");
             String listEntry = Main.configuration.getString("messages.disc-list-entry","&c№%index% &7- S: &c%sound%&7, N: &c%name%&7, CMD: &c%cmd%&7, M: &c%item%");
             String listBottom = Main.configuration.getString("messages.disc-list-bottom");

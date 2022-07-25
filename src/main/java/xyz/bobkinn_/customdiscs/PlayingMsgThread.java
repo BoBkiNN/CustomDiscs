@@ -5,10 +5,10 @@ import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-public class playingMsgSend extends Thread{
+public class PlayingMsgThread extends Thread{
     PlayerInteractEvent e;
     TranslatableComponent actBarTr;
-    playingMsgSend(PlayerInteractEvent e, TranslatableComponent msg){
+    PlayingMsgThread(PlayerInteractEvent e, TranslatableComponent msg){
         this.e=e;
         this.actBarTr=msg;
     }
