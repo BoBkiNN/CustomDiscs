@@ -30,6 +30,12 @@ public class CommandHandler implements CommandExecutor {
                 return true;
             }
 
+            if (args.length==1){
+                String msg = Main.configuration.getString("messages.get-cmd.use","&cUse &e/cd get <id> [player]");
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&',msg));
+                return true;
+            }
+
             int id;
             try {
                 id = Integer.parseInt(args[1]);

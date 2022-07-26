@@ -19,4 +19,5 @@ messages:
     id-not-found: "&cDisc with this id not found"
     player-not-found: "&cPlayer with this name not found"
     success: "&cGiven disc &b№%id% &cto &e%player%"
-    console-use: "&cUse &e/cd get <id> [player]&c for console"
+    console-use: "&cUse &e/cd get <id> <player>&c for console"
+    use: "&cUse &e/cd get <id> [player]"

@@ -14,9 +14,11 @@ public class CommandTabCompleter implements TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if (args.length==1){
+            sender.sendMessage("1");
             return Arrays.asList("list","reload","del","add","get","play");
         }
-        if (args.length==2 && args[1].equalsIgnoreCase("get")){
+        if (args.length==2 && args[0].equalsIgnoreCase("get")){
+            sender.sendMessage("2");
             ArrayList<String> ids = new ArrayList<>();
             int c = 0;
             for (CustomDisc ignored : Main.customDiscs){
@@ -25,7 +27,8 @@ public class CommandTabCompleter implements TabCompleter {
             }
             return ids;
         }
-        if (args.length==3 && args[1].equalsIgnoreCase("get")){
+        if (args.length==3 && args[0].equalsIgnoreCase("get")){
+            sender.sendMessage("3");
             ArrayList<String> players = new ArrayList<>();
             for (Player p : sender.getServer().getOnlinePlayers()){
                 players.add(p.getName());
