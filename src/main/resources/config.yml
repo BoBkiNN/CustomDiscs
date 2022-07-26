@@ -14,3 +14,9 @@ messages:
   #disc-list-bottom: "&a----========" # uncomment this line to enable sending
   no-permission: "&cI'm sorry, but you do not have permission to perform this command."
   override-paper-no-permission-msg: false
+  get-cmd:
+    id-not-given: "&cPlease provide disc id"
+    id-not-found: "&cDisc with this id not found"
+    player-not-found: "&cPlayer with this name not found"
+    success: "&cGiven disc &b№%id% &cto &e%player%"
+    console-use: "&cUse &e/cd get <id> [player]&c for console"
