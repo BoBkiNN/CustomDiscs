@@ -103,6 +103,15 @@ public class CommandHandler implements CommandExecutor {
             return true;
         }
 
+        if (args[0].equalsIgnoreCase("del")){
+            if (!sender.hasPermission("customdiscs.del") || !sender.isOp()){
+                sender.sendMessage(Utils.noPermMsg());
+                return true;
+            }
+            sender.sendMessage("TODO del");
+            return true;
+        }
+
         if (args[0].equalsIgnoreCase("list")){
             if (!sender.hasPermission("customdiscs.list") || !sender.isOp()){
                 sender.sendMessage(Utils.noPermMsg());
