@@ -9,15 +9,22 @@ remove-item-in-creative: false
 allow-spectator-use: false
 messages:
   reload: "&aReloaded!"
-  disc-list-top: "&a----==== &bLoaded custom discs (%count%): &a====----"
-  disc-list-entry: "&c№%index% &7- S: &c%sound%&7, N: &c%name%&7,\nCMD: &c%cmd%&7, M: &c%item%"
-  #disc-list-bottom: "&a----========" # uncomment this line to enable sending
   no-permission: "&cI'm sorry, but you do not have permission to perform this command."
   override-paper-no-permission-msg: false
+  id-not-given: "&cPlease provide disc id"
+  id-not-found: "&cDisc with this id not found"
+  player-not-found: "&cPlayer with this name not found"
+  config-warning: "&cWarning!&e config.yml&c file was rewritten, old copy of file was saved as&e config-backup.yml&c. You can disable this warning in config"
+  disable-config-warning: false
+  list-cmd:
+    top: "&a----==== &bLoaded custom discs (%count%): &a====----"
+    entry: "&c№%index% &7- S: &c%sound%&7, N: &c%name%&7,\nCMD: &c%cmd%&7, M: &c%item%"
+    bottom: "none" # change to any other  text to enable sending
   get-cmd:
-    id-not-given: "&cPlease provide disc id"
-    id-not-found: "&cDisc with this id not found"
-    player-not-found: "&cPlayer with this name not found"
     success: "&cGiven disc &b№%id% &cto &e%player%"
     console-use: "&cUse &e/cd get <id> <player>&c for console"
     use: "&cUse &e/cd get <id> [player]"
+  del-cmd:
+    use: "&cUse: &e/cd del <id>"
+  add-cmd:
+    use: '&cUse: &e/cd add <item> <sound> <cmd> <name>\n&cExample: &e/cd add minecraft:music_disc_cat minecraft:music.game 2005 "&2Menu Music"'

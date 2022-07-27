@@ -17,13 +17,7 @@ public class CommandTabCompleter implements TabCompleter {
             return Arrays.asList("list","reload","del","add","get");
         }
         if (args.length==2 && args[0].equalsIgnoreCase("get")){
-            ArrayList<String> ids = new ArrayList<>();
-            int c = 0;
-            for (CustomDisc ignored : Main.customDiscs){
-                c++;
-                ids.add(String.valueOf(c));
-            }
-            return ids;
+            return Utils.getIDsList();
         }
         if (args.length==3 && args[0].equalsIgnoreCase("get")){
             ArrayList<String> players = new ArrayList<>();
@@ -31,6 +25,12 @@ public class CommandTabCompleter implements TabCompleter {
                 players.add(p.getName());
             }
             return players;
+        }
+        if (args.length==2 && args[0].equalsIgnoreCase("del")){
+            return Utils.getIDsList();
+        }
+        if (args.length==2 && args[0].equalsIgnoreCase("add")){
+            return Utils.getMaterialList();
         }
         return Collections.singletonList("");
     }
