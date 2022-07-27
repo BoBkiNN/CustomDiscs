@@ -9,3 +9,4 @@ commands:
     description: CustomDiscs main command
     aliases:
       - cd
+    permission: "customdiscs.command"

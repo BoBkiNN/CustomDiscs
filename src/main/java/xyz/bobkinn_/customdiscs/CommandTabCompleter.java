@@ -15,12 +15,38 @@ public class CommandTabCompleter implements TabCompleter {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if (args.length==1){
-            return Arrays.asList("list","reload","del","add","get");
+            ArrayList<String> toDisplay = new ArrayList<>();
+            if (sender.hasPermission("customdiscs.list") || sender.isOp()){
+                toDisplay.add("list");
+            }
+            if (sender.hasPermission("customdiscs.reload") || sender.isOp()){
+                toDisplay.add("reload");
+            }
+            if (sender.hasPermission("customdiscs.del") || sender.isOp()){
+                toDisplay.add("del");
+            }
+            if (sender.hasPermission("customdiscs.add") || sender.isOp()){
+                toDisplay.add("add");
+            }
+            if (sender.hasPermission("customdiscs.get") || sender.isOp()){
+                toDisplay.add("get");
+            }
+            if (sender.hasPermission("customdiscs.help") || sender.isOp()){
+                toDisplay.add("help");
+            }
+            return toDisplay;
         }
         if (args.length==2 && args[0].equalsIgnoreCase("get")){
+            if (!sender.hasPermission("customdiscs.get") || !sender.isOp()){
+                return Collections.singletonList("");
+            }
             return Utils.getIDsList();
+
         }
         if (args.length==3 && args[0].equalsIgnoreCase("get")){
+            if (!sender.hasPermission("customdiscs.get") || !sender.isOp()){
+                return Collections.singletonList("");
+            }
             ArrayList<String> players = new ArrayList<>();
             for (Player p : sender.getServer().getOnlinePlayers()){
                 players.add(p.getName());
@@ -28,20 +54,36 @@ public class CommandTabCompleter implements TabCompleter {
             return players;
         }
         if (args.length==2 && args[0].equalsIgnoreCase("del")){
+            if (!sender.hasPermission("customdiscs.del") || !sender.isOp()){
+                return Collections.singletonList("");
+            }
             return Utils.getIDsList();
         }
         if (args.length==2 && args[0].equalsIgnoreCase("add")){
-            return Utils.getMaterialList();
+            if (!sender.hasPermission("customdiscs.add") || !sender.isOp()){
+                return Collections.singletonList("");
+            }
+//            return Utils.getMaterialList(); //currently disabled due to unknown bug sorry
+            return Utils.getVanillaDiscsList();
         }
         if (args.length==3 && args[0].equalsIgnoreCase("add")){
+            if (!sender.hasPermission("customdiscs.add") || !sender.isOp()){
+                return Collections.singletonList("");
+            }
             return Utils.getSoundsList();
         }
         if (args.length==4 && args[0].equalsIgnoreCase("add")){
+            if (!sender.hasPermission("customdiscs.add") || !sender.isOp()){
+                return Collections.singletonList("");
+            }
             String cmdCo = Main.configuration.getString("messages.add-cmd.cmd-tab-complete","<CustomModelData-int>");
             cmdCo = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&',cmdCo));
             return Collections.singletonList(cmdCo);
         }
         if (args.length==5 && args[0].equalsIgnoreCase("add")){
+            if (!sender.hasPermission("customdiscs.add") || !sender.isOp()){
+                return Collections.singletonList("");
+            }
             String nCo = Main.configuration.getString("messages.add-cmd.name-tab-complete","<displayName>");
             nCo = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&',nCo));
             return Collections.singletonList(nCo);

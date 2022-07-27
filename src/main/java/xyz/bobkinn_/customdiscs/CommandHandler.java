@@ -210,13 +210,16 @@ public class CommandHandler implements CommandExecutor {
                 String msg2 = Main.configuration.getString("messages.add-cmd.cant-contain","&cDisc name cant contain a '=' symbol");
                 sender.sendMessage(ChatColor.translateAlternateColorCodes('&',msg2));
             }
-            sender.sendMessage(name.toString());
             CustomDisc disc = new CustomDisc(cmd,Material.matchMaterial(args[1]),args[2],name.toString());
             String rawDisc = args[1]+"="+args[2]+"="+args[3];
             String rawName = args[2]+"="+name;
-            Main.configuration.set("discs",Main.configuration.getStringList("discs").add(rawDisc));
-            Main.configuration.set("names",Main.configuration.getStringList("discs").add(rawName));
-            sender.sendMessage(disc.toString());
+            List<String> rawDiscs = Main.configuration.getStringList("discs");
+            rawDiscs.add(rawDisc);
+            List<String> rawNames = Main.configuration.getStringList("discs");
+            rawNames.add(rawName);
+            Main.configuration.set("discs", rawDiscs);
+            Main.configuration.set("names", rawNames);
+
             Main.customDiscs.add(disc);
             File configFile = new File(Main.plugin.getDataFolder(),"config.yml");
             File configBackup = new File(Main.plugin.getDataFolder(),"config-backup.yml");
@@ -228,8 +231,10 @@ public class CommandHandler implements CommandExecutor {
                     String msg3 = Main.configuration.getString("messages.config-warning","&cWarning!&e config.yml&c file was rewritten, old copy of file was saved as&e config-backup.yml&c. You can disable this warning in config");
                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&',msg3));
                 }
-
-                return true;
+                String msg1 = Main.configuration.getString("messages.add-cmd.success","&cNew disc &e№%id%&c created");
+                msg1 = msg1.replace("%id%",String.valueOf(Main.customDiscs.indexOf(disc)+1));
+                msg1 = ChatColor.translateAlternateColorCodes('&',msg1);
+                sender.sendMessage(msg1);
             } catch (IOException e) {
                 e.printStackTrace();
             }

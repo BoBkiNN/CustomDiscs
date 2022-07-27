@@ -139,7 +139,7 @@ public final class Main extends JavaPlugin implements Listener {
         PersistentDataContainer jukeStore = new CustomBlockData(clickedBlock,this);
         if (jukeStore.has(namespacedKey, PersistentDataType.STRING)){
             String sound = jukeStore.get(namespacedKey,PersistentDataType.STRING);
-            e.getPlayer().sendMessage("Jukebox has disc "+sound);
+//            e.getPlayer().sendMessage("Jukebox has disc "+sound);
             jukeStore.remove(namespacedKey);
             Utils.stopSound(clickedBlock,sound);
             CustomDisc disc = Utils.getDiscBySound(sound,customDiscs);
@@ -182,8 +182,12 @@ public final class Main extends JavaPlugin implements Listener {
                 }
 
                 if (correctDisc){
-                    e.getPlayer().sendMessage(ChatColor.GREEN+"Correct disc");
-                    e.getPlayer().sendMessage(ChatColor.YELLOW+disc.toString());
+//                    e.getPlayer().sendMessage(ChatColor.GREEN+"Correct disc");
+//                    e.getPlayer().sendMessage(ChatColor.YELLOW+disc.toString());
+                    if (!e.getPlayer().getInventory().getItemInMainHand().getType().isRecord()){
+                        return;
+                    }
+
                     PersistentDataContainer jukeEmpty = new CustomBlockData(clickedBlock,this);
                     jukeEmpty.set(namespacedKey, PersistentDataType.STRING,disc.getSound());
                     clickedBlock.getWorld().playSound(clickedBlock.getLocation(),disc.getSound(), SoundCategory.RECORDS,2.5f,1);

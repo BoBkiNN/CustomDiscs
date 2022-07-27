@@ -31,6 +31,15 @@ public class Utils {
         }
         return materials;
     }
+    public static ArrayList<String> getVanillaDiscsList(){
+        ArrayList<String> discs = new ArrayList<>();
+        for (Material material : Material.values()){
+            if (material.isRecord()){
+                discs.add(material.getKey().getNamespace()+":"+material.getKey().getKey());
+            }
+        }
+        return discs;
+    }
     public static ArrayList<String> getSoundsList(){
         ArrayList<String> sounds = new ArrayList<>();
         for (Sound sound : Sound.values()){
