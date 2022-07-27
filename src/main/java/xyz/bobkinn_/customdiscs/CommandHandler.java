@@ -2,6 +2,7 @@ package xyz.bobkinn_.customdiscs;
 
 import net.md_5.bungee.api.ChatColor;
 import org.apache.commons.io.FileUtils;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -166,13 +167,72 @@ public class CommandHandler implements CommandExecutor {
                 sender.sendMessage(Utils.noPermMsg());
                 return true;
             }
-            sender.sendMessage(Arrays.toString(args));
+
             if (args.length<5){
                 String msg = Main.configuration.getString("messages.add-cmd.use","&cUse: &e/cd add <item> <sound> <cmd> <name>");
                 String msg2 = Main.configuration.getString("messages.add-cmd.use-example","&cExample: &e/cd add minecraft:music_disc_cat minecraft:music.game 2005 &2Menu Music");
                 sender.sendMessage(ChatColor.translateAlternateColorCodes('&',msg),ChatColor.translateAlternateColorCodes('&',msg2));
                 return true;
-            } //add1 s2 c3 n4
+            } //add1 i2 s3 c4 n5
+
+            if (Material.matchMaterial(args[1])==null){
+                String msg = Main.configuration.getString("messages.add-cmd.material-not-exists","&cMaterial &e%item%&c not found");
+                msg=msg.replace("%item%",args[1]);
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&',msg));
+                return true;
+            }
+            int cmd;
+            String msg = Main.configuration.getString("messages.add-cmd.not-int","&cCustomModelData must be positive integer");
+            try {
+                if (Integer.parseInt(args[3])<=0){
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&',msg));
+                    return true;
+                } else {
+                    cmd = Integer.parseInt(args[3]);
+                }
+            } catch (NumberFormatException e){
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&',msg));
+                return true;
+            }
+
+            StringBuilder name = new StringBuilder();
+            int i = 0;
+            for (String arg : args){
+                if (i<4){
+                    i++;
+                } else {
+                    name.append(arg);
+                    name.append(" ");
+                }
+            }
+            name.deleteCharAt(name.length()-1);
+            if (name.toString().contains("=")){
+                String msg2 = Main.configuration.getString("messages.add-cmd.cant-contain","&cDisc name cant contain a '=' symbol");
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&',msg2));
+            }
+            sender.sendMessage(name.toString());
+            CustomDisc disc = new CustomDisc(cmd,Material.matchMaterial(args[1]),args[2],name.toString());
+            String rawDisc = args[1]+"="+args[2]+"="+args[3];
+            String rawName = args[2]+"="+name;
+            Main.configuration.set("discs",Main.configuration.getStringList("discs").add(rawDisc));
+            Main.configuration.set("names",Main.configuration.getStringList("discs").add(rawName));
+            sender.sendMessage(disc.toString());
+            Main.customDiscs.add(disc);
+            File configFile = new File(Main.plugin.getDataFolder(),"config.yml");
+            File configBackup = new File(Main.plugin.getDataFolder(),"config-backup.yml");
+
+            try {
+                FileUtils.copyFile(configFile,configBackup);
+                Main.configuration.save(new File(Main.plugin.getDataFolder(),"config.yml"));
+                if (!Main.configuration.getBoolean("disable-config-warning",false)){
+                    String msg3 = Main.configuration.getString("messages.config-warning","&cWarning!&e config.yml&c file was rewritten, old copy of file was saved as&e config-backup.yml&c. You can disable this warning in config");
+                    sender.sendMessage(ChatColor.translateAlternateColorCodes('&',msg3));
+                }
+
+                return true;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
         }
 

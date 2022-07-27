@@ -6,7 +6,7 @@
 
     <groupId>xyz.bobkinn_</groupId>
     <artifactId>customdiscs</artifactId>
-    <version>0.5-b82</version>
+    <version>0.5-b84</version>
     <packaging>jar</packaging>
 
     <name>CustomDiscs</name>

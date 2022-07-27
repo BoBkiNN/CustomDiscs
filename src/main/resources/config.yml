@@ -31,3 +31,7 @@ messages:
     use-example: "&cExample: &e/cd add minecraft:music_disc_cat minecraft:music.game 2005 &2Menu Music"
     cmd-tab-complete: "<CustomModelData-int>"
     name-tab-complete: "<name>"
+    material-not-exists: "&cMaterial &e%item%&c not found"
+    not-int: "&cCustomModelData must be positive integer"
+    cant-contain: "&cDisc name cant contain a '=' symbol"
+    success: "&cNew disc &e№%id%&c created"
