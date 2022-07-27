@@ -167,6 +167,12 @@ public class CommandHandler implements CommandExecutor {
                 return true;
             }
             sender.sendMessage(Arrays.toString(args));
+            if (args.length<5){
+                String msg = Main.configuration.getString("messages.add-cmd.use","&cUse: &e/cd add <item> <sound> <cmd> <name>");
+                String msg2 = Main.configuration.getString("messages.add-cmd.use-example","&cExample: &e/cd add minecraft:music_disc_cat minecraft:music.game 2005 &2Menu Music");
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&',msg),ChatColor.translateAlternateColorCodes('&',msg2));
+                return true;
+            } //add1 s2 c3 n4
 
         }
 

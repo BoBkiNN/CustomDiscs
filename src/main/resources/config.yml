@@ -27,4 +27,7 @@ messages:
   del-cmd:
     use: "&cUse: &e/cd del <id>"
   add-cmd:
-    use: '&cUse: &e/cd add <item> <sound> <cmd> <name>\n&cExample: &e/cd add minecraft:music_disc_cat minecraft:music.game 2005 "&2Menu Music"'
+    use: '&cUse: &e/cd add <item> <sound> <cmd> <name>'
+    use-example: "&cExample: &e/cd add minecraft:music_disc_cat minecraft:music.game 2005 &2Menu Music"
+    cmd-tab-complete: "<CustomModelData-int>"
+    name-tab-complete: "<name>"

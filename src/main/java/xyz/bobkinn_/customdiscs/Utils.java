@@ -3,6 +3,7 @@ package xyz.bobkinn_.customdiscs;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -26,9 +27,16 @@ public class Utils {
     public static ArrayList<String> getMaterialList(){
         ArrayList<String> materials = new ArrayList<>();
         for (Material material : Material.values()){
-            materials.add(NamespacedKey.MINECRAFT+":"+material.getKey().getKey());
+            materials.add(material.getKey().getNamespace()+":"+material.getKey().getKey());
         }
         return materials;
+    }
+    public static ArrayList<String> getSoundsList(){
+        ArrayList<String> sounds = new ArrayList<>();
+        for (Sound sound : Sound.values()){
+            sounds.add(sound.getKey().getNamespace()+":"+sound.getKey().getKey());
+        }
+        return sounds;
     }
 
     public static ArrayList<String> getIDsList(){

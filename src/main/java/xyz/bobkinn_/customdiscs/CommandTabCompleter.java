@@ -1,5 +1,6 @@
 package xyz.bobkinn_.customdiscs;
 
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -31,6 +32,19 @@ public class CommandTabCompleter implements TabCompleter {
         }
         if (args.length==2 && args[0].equalsIgnoreCase("add")){
             return Utils.getMaterialList();
+        }
+        if (args.length==3 && args[0].equalsIgnoreCase("add")){
+            return Utils.getSoundsList();
+        }
+        if (args.length==4 && args[0].equalsIgnoreCase("add")){
+            String cmdCo = Main.configuration.getString("messages.add-cmd.cmd-tab-complete","<CustomModelData-int>");
+            cmdCo = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&',cmdCo));
+            return Collections.singletonList(cmdCo);
+        }
+        if (args.length==5 && args[0].equalsIgnoreCase("add")){
+            String nCo = Main.configuration.getString("messages.add-cmd.name-tab-complete","<displayName>");
+            nCo = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&',nCo));
+            return Collections.singletonList(nCo);
         }
         return Collections.singletonList("");
     }
