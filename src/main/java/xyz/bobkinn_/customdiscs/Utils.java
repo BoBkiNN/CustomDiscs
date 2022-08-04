@@ -6,6 +6,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -22,6 +23,10 @@ public class Utils {
             player.stopSound(sound, SoundCategory.RECORDS);
         }
 
+    }
+
+    public static boolean hasPermForCmd(CommandSender sender, String cmdName){
+        return sender.hasPermission("customdiscs."+cmdName) || sender.isOp();
     }
 
     public static ArrayList<String> getMaterialList(){

@@ -19,7 +19,7 @@ messages:
   list-cmd:
     top: "&a----==== &bLoaded custom discs (%count%): &a====----"
     entry: "&c№%index% &7- S: &c%sound%&7, N: &c%name%&7,\nCMD: &c%cmd%&7, M: &c%item%"
-    bottom: "none" # change to any other  text to enable sending
+    bottom: "none" # change to any other text to enable sending
   get-cmd:
     success: "&cGiven disc &b№%id% &cto &e%player%"
     console-use: "&cUse &e/cd get <id> <player>&c for console"
@@ -35,3 +35,11 @@ messages:
     not-int: "&cCustomModelData must be positive integer"
     cant-contain: "&cDisc name cant contain a '=' symbol"
     success: "&cNew disc &e№%id%&c created"
+  help-cmd:
+    top: "&cHelp for CustomDiscs:"
+    help: "&e/cd help &b- sends a help message"
+    list: "&e/cd list &b- get a list of custom discs"
+    get: "&e/cd get <id> [player] &b- get a loaded disc"
+    del: "&e/cd del <id> &b- remove disc from config"
+    add: "&e/cd add <item> <sound> <cmd> <name> &b- add a new disc"
+    bottom: "&c============"

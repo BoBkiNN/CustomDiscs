@@ -13,19 +13,58 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class CommandHandler implements CommandExecutor {
 
     public void helpCmd(CommandSender sender){
-        sender.sendMessage("TODO help msg");
+        String top = Main.configuration.getString("messages.help-cmd.top","&cHelp for CustomDiscs:");
+        String bottom = Main.configuration.getString("messages.help-cmd.bottom","&c============");
+        String help = Main.configuration.getString("messages.help-cmd.help","&e/cd help &b- sends a help message");
+        String list = Main.configuration.getString("messages.help-cmd.list","&e/cd list &b- get a list of custom discs");
+        String get = Main.configuration.getString("messages.help-cmd.get","&e/cd get <id> [player] &b- get a loaded disc");
+        String del = Main.configuration.getString("messages.help-cmd.del","&e/cd del <id> &b- remove disc from config");
+        String add = Main.configuration.getString("messages.help-cmd.add","&e/cd add <item> <sound> <cmd> <name> &b- add a new disc");
+        top=ChatColor.translateAlternateColorCodes('&',top);
+        bottom=ChatColor.translateAlternateColorCodes('&',bottom);
+        help=ChatColor.translateAlternateColorCodes('&',help);
+        list=ChatColor.translateAlternateColorCodes('&',list);
+        get=ChatColor.translateAlternateColorCodes('&',get);
+        del=ChatColor.translateAlternateColorCodes('&',del);
+        add=ChatColor.translateAlternateColorCodes('&',add);
+        ArrayList<Boolean> perms = new ArrayList<>();
+        perms.add(Utils.hasPermForCmd(sender,"help"));
+        perms.add(Utils.hasPermForCmd(sender, "list"));
+        perms.add(Utils.hasPermForCmd(sender,"get"));
+        perms.add(Utils.hasPermForCmd(sender,"del"));
+        perms.add(Utils.hasPermForCmd(sender,"add"));
+        if (perms.contains(Boolean.TRUE)) sender.sendMessage(top);
+        if (Utils.hasPermForCmd(sender,"help")) sender.sendMessage(help);
+        if (Utils.hasPermForCmd(sender,"list")) sender.sendMessage(list);
+        if (Utils.hasPermForCmd(sender,"get")) sender.sendMessage(get);
+        if (Utils.hasPermForCmd(sender,"del")) sender.sendMessage(del);
+        if (Utils.hasPermForCmd(sender,"add")) sender.sendMessage(add);
+        if (perms.contains(Boolean.TRUE)) sender.sendMessage(bottom);
+
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length==0){
+            if (!sender.hasPermission("customdiscs.help") || !sender.isOp()){
+                sender.sendMessage(Utils.noPermMsg());
+                return true;
+            }
+            helpCmd(sender);
+            return true;
+        }
+        if (args[0].equalsIgnoreCase("help")){
+            if (!sender.hasPermission("customdiscs.help") || !sender.isOp()){
+                sender.sendMessage(Utils.noPermMsg());
+                return true;
+            }
             helpCmd(sender);
             return true;
         }
@@ -215,7 +254,7 @@ public class CommandHandler implements CommandExecutor {
             String rawName = args[2]+"="+name;
             List<String> rawDiscs = Main.configuration.getStringList("discs");
             rawDiscs.add(rawDisc);
-            List<String> rawNames = Main.configuration.getStringList("discs");
+            List<String> rawNames = Main.configuration.getStringList("names");
             rawNames.add(rawName);
             Main.configuration.set("discs", rawDiscs);
             Main.configuration.set("names", rawNames);
