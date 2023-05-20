@@ -6,6 +6,7 @@ import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.apache.commons.io.IOUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.EventHandler;
@@ -22,25 +23,30 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.logging.Logger;
 
 public final class Main extends JavaPlugin implements Listener {
     NamespacedKey namespacedKey = new NamespacedKey(this,"custom_disc");
     static ArrayList<CustomDisc> customDiscs;
     public static Plugin plugin;
     static FileConfiguration configuration;
+    public static Logger logger;
 
     @Override
     public void onEnable() {
+        logger = getLogger();
         // Plugin startup logic
         getServer().getPluginManager().registerEvents(this,this);
         plugin=this;
         configuration = getConfig();
         loadConfig();
-        if (getCommand("customdiscs")!= null){
-            getCommand("customdiscs").setExecutor(new CommandHandler());
-            getCommand("customdiscs").setTabCompleter(new CommandTabCompleter());
+        PluginCommand cmd = getCommand("customdiscs");
+        if (cmd != null){
+            cmd.setExecutor(new CommandHandler());
+            cmd.setTabCompleter(new CommandTabCompleter());
         }
     }
 
@@ -51,13 +57,19 @@ public final class Main extends JavaPlugin implements Listener {
 
     public static void loadConfig(){
         File dataFolder = plugin.getDataFolder();
-        if (!dataFolder.exists()) dataFolder.mkdirs();
+        if (!dataFolder.exists()) {
+            if (!dataFolder.mkdirs()){
+                plugin.getLogger().severe("Failed to create data folder");
+            }
+        }
         File configFile = new File(plugin.getDataFolder(),"config.yml");
         if (!configFile.exists()) {
             try {
-                configFile.createNewFile();
+                boolean c = configFile.createNewFile();
+                if (!c) throw new IOException("Failed to create config file");
                 InputStream jarCfg = plugin.getResource("config.yml");
-                OutputStream outputStream = new FileOutputStream(configFile);
+                if (jarCfg == null) throw new IOException("Failed to find config file");
+                OutputStream outputStream = Files.newOutputStream(configFile.toPath());
                 IOUtils.copy(jarCfg,outputStream);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -66,10 +78,10 @@ public final class Main extends JavaPlugin implements Listener {
         configuration = YamlConfiguration.loadConfiguration(configFile);
 
         customDiscs=Utils.makeDiscs(configuration);
-        plugin.getLogger().info("Disc debug:");
-        for (CustomDisc disc : customDiscs){
-            plugin.getLogger().info(disc.toString());
-        }
+//        plugin.getLogger().info("Disc debug:");
+//        for (CustomDisc disc : customDiscs){
+//            plugin.getLogger().info(disc.toString());
+//        }
     }
 
 //   @EventHandler
@@ -98,6 +110,7 @@ public final class Main extends JavaPlugin implements Listener {
 
             ItemStack drop = new ItemStack(disc.getMaterial());
             ItemMeta dropMeta = drop.getItemMeta();
+            if (dropMeta == null) return;
 
             dropMeta.setCustomModelData(disc.getCmd());
             if (drop.getType().isRecord()){
@@ -151,6 +164,7 @@ public final class Main extends JavaPlugin implements Listener {
 
             ItemStack drop = new ItemStack(disc.getMaterial());
             ItemMeta dropMeta = drop.getItemMeta();
+            if (dropMeta == null) return;
 
             dropMeta.setCustomModelData(disc.getCmd());
 
@@ -166,15 +180,16 @@ public final class Main extends JavaPlugin implements Listener {
             e.setCancelled(true);
             
         } else {
+            ItemStack heldItem = e.getPlayer().getInventory().getItemInMainHand();
+            if (!heldItem.hasItemMeta()) return;
+            if (heldItem.getItemMeta() == null) return;
+            if (!heldItem.getItemMeta().hasCustomModelData()){
+                return;
+            }
             for (CustomDisc disc : customDiscs){
 
                 // check is disc correct
                 boolean correctDisc = false;
-                ItemStack heldItem = e.getPlayer().getInventory().getItemInMainHand();
-                if (!heldItem.hasItemMeta()) continue;
-                if (!heldItem.getItemMeta().hasCustomModelData()){
-                    continue;
-                }
                 if (heldItem.getType().equals(disc.getMaterial())){
                     if (heldItem.getItemMeta().getCustomModelData() == disc.getCmd()) {
                         correctDisc=true;
@@ -199,11 +214,8 @@ public final class Main extends JavaPlugin implements Listener {
                     }
 
                     if (configuration.getBoolean("enable-playing_msg",true)){
-                        String fName = disc.getName();
-                        if (configuration.getBoolean("use-colored-name-in-msg",false)){
-                            fName=ChatColor.translateAlternateColorCodes('&',fName);
-                        } else {
-                            fName=ChatColor.translateAlternateColorCodes('&',fName);
+                        String fName = ChatColor.translateAlternateColorCodes('&',disc.getName());
+                        if (!configuration.getBoolean("use-colored-name-in-msg",false)){
                             fName = ChatColor.stripColor(fName);
                         }
                         TranslatableComponent actBarTr = new TranslatableComponent("record.nowPlaying", fName);

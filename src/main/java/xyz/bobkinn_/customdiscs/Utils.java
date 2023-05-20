@@ -17,8 +17,10 @@ import java.util.Arrays;
 import java.util.logging.Logger;
 
 public class Utils {
+    public static ArrayList<String> vanillaDiscs = null;
+
     public static void stopSound(Block sourceBlock, String sound){
-        if (sourceBlock == null){return;}
+        if (sourceBlock == null) return;
         for (Player player : sourceBlock.getWorld().getPlayers()){
             player.stopSound(sound, SoundCategory.RECORDS);
         }
@@ -36,14 +38,28 @@ public class Utils {
         }
         return materials;
     }
+
     public static ArrayList<String> getVanillaDiscsList(){
+        if (vanillaDiscs != null) return vanillaDiscs;
         ArrayList<String> discs = new ArrayList<>();
         for (Material material : Material.values()){
-            if (material.isRecord()){
-                discs.add(material.getKey().getNamespace()+":"+material.getKey().getKey());
+            if (material.name().startsWith("LEGACY_")) {
+                continue; // Skip legacy materials
+            }
+            if (material.name().startsWith("MUSIC_DISC_")) {
+//                Main.logger.warning(material.toString());
+                NamespacedKey key;
+                try {
+                    key = material.getKey();
+                } catch (IllegalArgumentException e) {
+                    Main.logger.warning("e" + material);
+                    continue;
+                }
+                discs.add(key.toString());
             }
         }
-        return discs;
+        vanillaDiscs = discs;
+        return vanillaDiscs;
     }
     public static ArrayList<String> getSoundsList(){
         ArrayList<String> sounds = new ArrayList<>();

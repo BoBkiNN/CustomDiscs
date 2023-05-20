@@ -1,7 +1,7 @@
 name: CustomDiscs
 version: '${project.version}'
 main: xyz.bobkinn_.customdiscs.Main
-api-version: 1.18
+api-version: 1.19
 author: BoBkiNN_
 
 commands:
