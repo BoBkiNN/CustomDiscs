@@ -205,7 +205,8 @@ public final class Main extends JavaPlugin implements Listener {
 
                     PersistentDataContainer jukeEmpty = new CustomBlockData(clickedBlock,this);
                     jukeEmpty.set(namespacedKey, PersistentDataType.STRING,disc.getSound());
-                    clickedBlock.getWorld().playSound(clickedBlock.getLocation(),disc.getSound(), SoundCategory.RECORDS,2.5f,1);
+                    // old 3.5f
+                    clickedBlock.getWorld().playSound(clickedBlock.getLocation(),disc.getSound(), SoundCategory.RECORDS,1.0f,1f);
 
                     if (configuration.getBoolean("remove-item-in-creative",false) && pGm.equals(GameMode.CREATIVE)){
                         e.getPlayer().getInventory().setItemInMainHand(new ItemStack(Material.AIR));
