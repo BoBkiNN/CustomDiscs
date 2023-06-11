@@ -13,7 +13,9 @@ import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class Utils {
@@ -29,14 +31,6 @@ public class Utils {
 
     public static boolean hasPermForCmd(CommandSender sender, String cmdName){
         return sender.hasPermission("customdiscs."+cmdName) || sender.isOp();
-    }
-
-    public static ArrayList<String> getMaterialList(){
-        ArrayList<String> materials = new ArrayList<>();
-        for (Material material : Material.values()){
-            materials.add(material.getKey().getNamespace()+":"+material.getKey().getKey());
-        }
-        return materials;
     }
 
     public static ArrayList<String> getVanillaDiscsList(){
@@ -79,26 +73,6 @@ public class Utils {
         return ids;
     }
 
-    public static String getNameBySound(String sound, FileConfiguration configuration){
-        ArrayList<String> names = new ArrayList<>(configuration.getStringList("names"));
-        Logger logger = Main.plugin.getLogger();
-
-        for (String name : names){
-            ArrayList<String> nameP = new ArrayList<>(Arrays.asList(name.split("=")));
-            if (nameP.size()!=2){
-                logger.warning("Disc name at position "+names.indexOf(name)+" incorrect");
-                if (names.indexOf(name) == names.size()-1){
-                    return sound;
-                }
-            }
-            if (nameP.get(0).equals(sound)){
-                return nameP.get(1);
-            }
-        }
-        logger.warning("Name for sound \""+sound+"\" not found");
-        return sound;
-    }
-
     public static boolean isPaper() {
         try {
             Class.forName("com.destroystokyo.paper.ParticleBuilder");
@@ -127,41 +101,66 @@ public class Utils {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public static <K, V> Map<K, V> convertMap(Map<?, ?> map){
+        try {
+            return (Map<K, V>) map;
+        } catch (ClassCastException e){
+            return new HashMap<>();
+        }
+    }
+
 
     public static ArrayList<CustomDisc> makeDiscs(FileConfiguration configuration){
         ArrayList<CustomDisc> discs = new ArrayList<>();
         Logger logger = Main.plugin.getLogger();
 
-        ArrayList<String> rawDiscs = new ArrayList<>(configuration.getStringList("discs"));
-
-        //checking
-        for (String disc : rawDiscs){
-            ArrayList<String> discP = new ArrayList<>(Arrays.asList(disc.split("=")));
-            if (discP.size()!=3){
-                logger.warning("Disc at position "+rawDiscs.indexOf(disc)+" incorrect, skipping");
-                continue;
-            }
-            if (Material.matchMaterial(discP.get(0)) == null){
-                logger.warning("Material of disc at position "+rawDiscs.indexOf(disc)+" not found, skipping");
-                continue;
-            }
+        List<Map<?, ?>> raw = configuration.getMapList("discs");
+        List<Map<String, Object>> section = new ArrayList<>();
+        for (Map<?, ?> r : raw){
+            Map<String, Object> converted = convertMap(r);
+            if (!converted.isEmpty()) section.add(converted);
+        }
+        int i = 0;
+        for (Map<String, Object> map : section){
+            i++;
             try {
-                int cmd = Integer.parseInt(discP.get(2));
-                if (cmd<=0){
-                    logger.warning("CustomModelData of disc at position "+rawDiscs.indexOf(disc)+" not positive, skipping");
+                String sound = (String) map.get("sound");
+                String name = (String) map.get("name");
+                String item = (String) map.get("item");
+                Integer cmd = (Integer) map.get("cmd");
+                Float volume = (Float) map.get("volume");
+                if (sound == null){
+                    logger.warning("Failed to load disc "+i+": 'sound' not found");
                     continue;
                 }
-            } catch (NumberFormatException e){
-                logger.warning("CustomModelData of disc at position "+rawDiscs.indexOf(disc)+" not int, skipping");
-                continue;
+                if (name == null){
+                    logger.warning("Failed to load disc "+i+": 'name' not found");
+                    continue;
+                }
+                if (item == null){
+                    logger.warning("Failed to load disc "+i+": 'item' not found");
+                    continue;
+                }
+                if (cmd == null){
+                    logger.warning("Failed to load disc "+i+": 'cmd' not found");
+                    continue;
+                }
+                if (cmd <= 0){
+                    logger.warning("Failed to load disc "+i+": 'cmd' is not positive");
+                    continue;
+                }
+                Material material = Material.matchMaterial(item);
+                if (material == null){
+                    logger.warning("Failed to load disc "+i+": unknown material");
+                    continue;
+                }
+                CustomDisc disc = new CustomDisc(cmd, material, sound, name, volume);
+                discs.add(disc);
+            } catch (Exception e){
+                logger.warning("Failed to load disc "+i+": "+e.getMessage());
             }
-
-            Material material = Material.matchMaterial(discP.get(0));
-            int cmd = Integer.parseInt(discP.get(2));
-            String name = getNameBySound(discP.get(1),configuration);
-            discs.add(new CustomDisc(cmd,material,discP.get(1),name));
         }
-
         return discs;
     }
 

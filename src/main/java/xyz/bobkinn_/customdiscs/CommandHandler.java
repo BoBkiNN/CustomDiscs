@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class CommandHandler implements CommandExecutor {
 
@@ -162,23 +163,16 @@ public class CommandHandler implements CommandExecutor {
                 sender.sendMessage(msg);
                 return true;
             }
-            CustomDisc disc;
-            try {
-                disc = Main.customDiscs.get(id-1);
+            List<Map<?, ?>> raw = Main.configuration.getMapList("discs");
+            if (id > raw.size()){
                 Main.customDiscs.remove(id - 1);
-            } catch (IndexOutOfBoundsException e){
+            } else {
                 String msg = getTranslate("messages.id-not-found","&cDisc with this id not found");
                 sender.sendMessage(msg);
                 return true;
             }
-            List<String> rawDiscs = Main.configuration.getStringList("discs");
-            List<String> rawNames = Main.configuration.getStringList("names");
-            String rawDisc = disc.getMaterial().getKey().getNamespace()+":"+disc.getMaterial().getKey().getKey()+"="+disc.getSound()+"="+disc.getCmd();
-            String rawName = disc.getSound()+"="+disc.getName();
-            rawDiscs.remove(rawDisc);
-            rawNames.remove(rawName);
-            Main.configuration.set("discs",rawDiscs);
-            Main.configuration.set("names",rawNames);
+            raw.remove(id-1);
+            Main.configuration.set("discs",raw);
             File configFile = new File(Main.plugin.getDataFolder(),"config.yml");
             File configBackup = new File(Main.plugin.getDataFolder(),"config-backup.yml");
 
@@ -241,20 +235,10 @@ public class CommandHandler implements CommandExecutor {
                 }
             }
             name.deleteCharAt(name.length()-1);
-            if (name.toString().contains("=")){
-                String msg2 = getTranslate("messages.add-cmd.cant-contain","&cDisc name cant contain a '=' symbol");
-                sender.sendMessage(msg2);
-            }
-            CustomDisc disc = new CustomDisc(cmd,Material.matchMaterial(args[1]),args[2],name.toString());
-            String rawDisc = args[1]+"="+args[2]+"="+args[3];
-            String rawName = args[2]+"="+name;
-            List<String> rawDiscs = Main.configuration.getStringList("discs");
-            rawDiscs.add(rawDisc);
-            List<String> rawNames = Main.configuration.getStringList("names");
-            rawNames.add(rawName);
-            Main.configuration.set("discs", rawDiscs);
-            Main.configuration.set("names", rawNames);
-
+            CustomDisc disc = new CustomDisc(cmd,Material.matchMaterial(args[1]),args[2],name.toString(), null);
+            List<Map<?, ?>> raw = Main.configuration.getMapList("discs");
+            raw.add(disc.serialize());
+            Main.configuration.set("discs", raw);
             Main.customDiscs.add(disc);
             File configFile = new File(Main.plugin.getDataFolder(),"config.yml");
             File configBackup = new File(Main.plugin.getDataFolder(),"config-backup.yml");

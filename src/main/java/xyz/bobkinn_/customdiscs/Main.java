@@ -165,7 +165,7 @@ public final class Main extends JavaPlugin implements Listener {
             Utils.stopSound(clickedBlock,sound);
             CustomDisc disc = Utils.getDiscBySound(sound,customDiscs);
             if (disc == null){
-                e.getPlayer().sendMessage("TODO This disc does not exists");
+//                e.getPlayer().sendMessage("TODO This disc does not exists");
                 e.setCancelled(true);
                 return;
             }
@@ -213,7 +213,8 @@ public final class Main extends JavaPlugin implements Listener {
 
                     PersistentDataContainer jukeEmpty = new CustomBlockData(clickedBlock,this);
                     jukeEmpty.set(namespacedKey, PersistentDataType.STRING,disc.getSound());
-                    clickedBlock.getWorld().playSound(clickedBlock.getLocation(),disc.getSound(), SoundCategory.RECORDS, soundVolume,1f);
+                    clickedBlock.getWorld().playSound(clickedBlock.getLocation(),disc.getSound(),
+                            SoundCategory.RECORDS, (disc.getVolume() == null ? soundVolume : disc.getVolume()),1f);
 
                     if (configuration.getBoolean("remove-item-in-creative",false) && pGm.equals(GameMode.CREATIVE)){
                         e.getPlayer().getInventory().setItemInMainHand(new ItemStack(Material.AIR));

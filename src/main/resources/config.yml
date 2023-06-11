@@ -1,8 +1,9 @@
 discs:
-  - "minecraft:music_disc_mellohi=my_discs:portal_radio=2004"
+  - sound: "my_discs:portal_radio"
+    name: "&bPortal radio"
+    item: "minecraft:music_disc_mellohi"
+    cmd: 2004
 enable-playing_msg: true
-names:
-  - "my_discs:portal_radio=&bPortal radio"
 use-colored-name-in-msg: false
 use-colored-desc: false
 remove-item-in-creative: false
@@ -34,7 +35,6 @@ messages:
     name-tab-complete: "<name>"
     material-not-exists: "&cMaterial &e%item%&c not found"
     not-int: "&cCustomModelData must be positive integer"
-    cant-contain: "&cDisc name cant contain a '=' symbol"
     success: "&cNew disc &e№%id%&c created"
   help-cmd:
     top: "&cHelp for CustomDiscs:"
