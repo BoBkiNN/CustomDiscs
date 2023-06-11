@@ -4,7 +4,10 @@ import com.jeff_media.customblockdata.CustomBlockData;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.apache.commons.io.IOUtils;
-import org.bukkit.*;
+import org.bukkit.GameMode;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -22,7 +25,10 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +40,7 @@ public final class Main extends JavaPlugin implements Listener {
     public static Plugin plugin;
     static FileConfiguration configuration;
     public static Logger logger;
+    public static float soundVolume = 3.5f;
 
     @Override
     public void onEnable() {
@@ -76,6 +83,7 @@ public final class Main extends JavaPlugin implements Listener {
             }
         }
         configuration = YamlConfiguration.loadConfiguration(configFile);
+        soundVolume = (float) configuration.getDouble("sound-volume", 3.5f);
 
         customDiscs=Utils.makeDiscs(configuration);
 //        plugin.getLogger().info("Disc debug:");
@@ -205,8 +213,7 @@ public final class Main extends JavaPlugin implements Listener {
 
                     PersistentDataContainer jukeEmpty = new CustomBlockData(clickedBlock,this);
                     jukeEmpty.set(namespacedKey, PersistentDataType.STRING,disc.getSound());
-                    // old 3.5f
-                    clickedBlock.getWorld().playSound(clickedBlock.getLocation(),disc.getSound(), SoundCategory.RECORDS,1.0f,1f);
+                    clickedBlock.getWorld().playSound(clickedBlock.getLocation(),disc.getSound(), SoundCategory.RECORDS, soundVolume,1f);
 
                     if (configuration.getBoolean("remove-item-in-creative",false) && pGm.equals(GameMode.CREATIVE)){
                         e.getPlayer().getInventory().setItemInMainHand(new ItemStack(Material.AIR));

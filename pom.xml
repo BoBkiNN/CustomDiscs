@@ -6,7 +6,7 @@
 
     <groupId>xyz.bobkinn_</groupId>
     <artifactId>customdiscs</artifactId>
-    <version>0.8-b101-R</version>
+    <version>0.8-b107-R</version>
     <packaging>jar</packaging>
 
     <name>CustomDiscs</name>
@@ -83,7 +83,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.19.2-R0.1-SNAPSHOT</version>
+            <version>1.19.3-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

@@ -7,6 +7,7 @@ use-colored-name-in-msg: false
 use-colored-desc: false
 remove-item-in-creative: false
 allow-spectator-use: false
+sound-volume: 3.5
 messages:
   reload: "&aReloaded!"
   no-permission: "&cI'm sorry, but you do not have permission to perform this command."
