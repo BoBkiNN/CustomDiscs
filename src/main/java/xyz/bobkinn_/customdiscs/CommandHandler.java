@@ -49,10 +49,14 @@ public class CommandHandler implements CommandExecutor {
 
     }
 
+    public boolean checkNoPermission(String perm, CommandSender player){
+        return !player.hasPermission(perm) && !player.isOp();
+    }
+
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, String[] args) {
         if (args.length==0){
-            if (!sender.hasPermission("customdiscs.help") || !sender.isOp()){
+            if (checkNoPermission("customdiscs.help", sender)){
                 sender.sendMessage(Utils.noPermMsg());
                 return true;
             }
@@ -60,7 +64,7 @@ public class CommandHandler implements CommandExecutor {
             return true;
         }
         if (args[0].equalsIgnoreCase("help")){
-            if (!sender.hasPermission("customdiscs.help") || !sender.isOp()){
+            if (checkNoPermission("customdiscs.help", sender)){
                 sender.sendMessage(Utils.noPermMsg());
                 return true;
             }
@@ -68,7 +72,7 @@ public class CommandHandler implements CommandExecutor {
             return true;
         }
         if (args[0].equalsIgnoreCase("get")){
-            if (!sender.hasPermission("customdiscs.get") || !sender.isOp()){
+            if (checkNoPermission("customdiscs.get", sender)){
                 sender.sendMessage(Utils.noPermMsg());
                 return true;
             }
@@ -133,7 +137,7 @@ public class CommandHandler implements CommandExecutor {
         }
 
         if (args[0].equalsIgnoreCase("reload")){
-            if (!sender.hasPermission("customdiscs.reload") || !sender.isOp()){
+            if (checkNoPermission("customdiscs.reload", sender)){
                 sender.sendMessage(Utils.noPermMsg());
                 return true;
             }
@@ -144,7 +148,7 @@ public class CommandHandler implements CommandExecutor {
         }
 
         if (args[0].equalsIgnoreCase("del")){
-            if (!sender.hasPermission("customdiscs.del") || !sender.isOp()){
+            if (checkNoPermission("customdiscs.del", sender)){
                 sender.sendMessage(Utils.noPermMsg());
                 return true;
             }
@@ -192,7 +196,7 @@ public class CommandHandler implements CommandExecutor {
         }
 
         if (args[0].equalsIgnoreCase("add")){
-            if (!sender.hasPermission("customdiscs.add") || !sender.isOp()){
+            if (checkNoPermission("customdiscs.add", sender)){
                 sender.sendMessage(Utils.noPermMsg());
                 return true;
             }
@@ -261,7 +265,7 @@ public class CommandHandler implements CommandExecutor {
         }
 
         if (args[0].equalsIgnoreCase("list")){
-            if (!sender.hasPermission("customdiscs.list") || !sender.isOp()){
+            if (checkNoPermission("customdiscs.list", sender)){
                 sender.sendMessage(Utils.noPermMsg());
                 return true;
             }

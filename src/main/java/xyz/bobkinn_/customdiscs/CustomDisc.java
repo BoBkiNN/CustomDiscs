@@ -3,6 +3,7 @@ package xyz.bobkinn_.customdiscs;
 import org.bukkit.Material;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +15,7 @@ public class CustomDisc implements ConfigurationSerializable {
     private final String name;
     private final Float volume;
 
-    public CustomDisc(int cmd, Material material, String sound, String name, Float volume) {
+    public CustomDisc(int cmd, Material material, String sound, String name,@Nullable Float volume) {
         this.cmd = cmd;
         this.material = material;
         this.sound = sound;
@@ -38,7 +39,7 @@ public class CustomDisc implements ConfigurationSerializable {
         return name;
     }
 
-    public Float getVolume() {
+    public @Nullable Float getVolume() {
         return volume;
     }
 

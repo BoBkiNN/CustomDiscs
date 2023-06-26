@@ -35,8 +35,8 @@ import java.util.Collections;
 import java.util.logging.Logger;
 
 public final class Main extends JavaPlugin implements Listener {
-    NamespacedKey namespacedKey = new NamespacedKey(this,"custom_disc");
-    static ArrayList<CustomDisc> customDiscs;
+    public final NamespacedKey namespacedKey = new NamespacedKey(this,"custom_disc");
+    public static ArrayList<CustomDisc> customDiscs;
     public static Plugin plugin;
     static FileConfiguration configuration;
     public static Logger logger;
