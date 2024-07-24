@@ -4,19 +4,22 @@ import com.jeff_media.customblockdata.CustomBlockData;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.TranslatableComponent;
 import org.apache.commons.io.IOUtils;
-import org.bukkit.GameMode;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.SoundCategory;
+import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.Hopper;
+import org.bukkit.block.data.type.Jukebox;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.BlockInventoryHolder;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -32,23 +35,25 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class Main extends JavaPlugin implements Listener {
-    public final NamespacedKey namespacedKey = new NamespacedKey(this,"custom_disc");
+    public final NamespacedKey customDiscKey = new NamespacedKey(this,"custom_disc");
     public static ArrayList<CustomDisc> customDiscs;
     public static Plugin plugin;
-    static FileConfiguration configuration;
-    public static Logger logger;
-    public static float soundVolume = 3.5f;
+    public static FileConfiguration config;
+    public static Logger LOGGER;
+    public static float DEFAULT_SOUND_VOLUME = 4f;
 
     @Override
     public void onEnable() {
-        logger = getLogger();
+        LOGGER = getLogger();
         // Plugin startup logic
         getServer().getPluginManager().registerEvents(this,this);
         plugin=this;
-        configuration = getConfig();
+        config = getConfig();
         loadConfig();
         PluginCommand cmd = getCommand("customdiscs");
         if (cmd != null){
@@ -79,13 +84,13 @@ public final class Main extends JavaPlugin implements Listener {
                 OutputStream outputStream = Files.newOutputStream(configFile.toPath());
                 IOUtils.copy(jarCfg,outputStream);
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.log(Level.WARNING, "Failed to copy config from plugin jar", e);
             }
         }
-        configuration = YamlConfiguration.loadConfiguration(configFile);
-        soundVolume = (float) configuration.getDouble("sound-volume", 3.5f);
+        config = YamlConfiguration.loadConfiguration(configFile);
+        DEFAULT_SOUND_VOLUME = (float) config.getDouble("sound-volume", 4f);
 
-        customDiscs=Utils.makeDiscs(configuration);
+        customDiscs=Utils.makeDiscs(config);
 //        plugin.getLogger().info("Disc debug:");
 //        for (CustomDisc disc : customDiscs){
 //            plugin.getLogger().info(disc.toString());
@@ -98,23 +103,81 @@ public final class Main extends JavaPlugin implements Listener {
 //       // not work
 //   }
 
+    public PersistentDataContainer getPdc(Block block){
+        return new CustomBlockData(block, this);
+    }
+
+    public CustomDisc findDiscByItem(ItemStack stack){
+        for (CustomDisc disc : customDiscs){
+            if (!stack.getType().equals(disc.getMaterial())) continue;
+            if (stack.getItemMeta() == null) continue;
+            if (stack.getItemMeta().getCustomModelData() != disc.getCmd()) continue;
+            return disc;
+        }
+        return null;
+    }
+
+    public List<Player> collectPlayers(Block block, float volume){
+        Location loc = block.getLocation();
+        World world = block.getWorld();
+        float distance = 4*volume*16;
+        float distanceSquared = distance*distance;
+        List<Player> ret = new ArrayList<>();
+        for (Player player : world.getPlayers()){
+            if (player.getLocation().distanceSquared(loc) <= distanceSquared){
+                ret.add(player);
+            }
+        }
+        return ret;
+    }
+
+    @EventHandler
+    public void onHopperMove(InventoryMoveItemEvent e){
+        if (!(e.getSource().getHolder() instanceof Hopper)) return;
+        if (!(e.getDestination().getHolder() instanceof BlockInventoryHolder)) return;
+        BlockInventoryHolder holder = (BlockInventoryHolder) e.getDestination().getHolder();
+        Block block = holder.getBlock();
+        if (!block.getType().equals(Material.JUKEBOX)) return;
+        PersistentDataContainer pdc = getPdc(block);
+        if (pdc.has(customDiscKey, PersistentDataType.STRING)) {
+            e.setCancelled(true);
+            return;
+        }
+        CustomDisc disc = findDiscByItem(e.getItem());
+        if (disc == null) return;
+        pdc.set(customDiscKey, PersistentDataType.STRING,disc.getSound());
+        block.getWorld().playSound(block.getLocation(),disc.getSound(),
+                SoundCategory.RECORDS, disc.getVolumeOrDef(),1f);
+
+        if (config.getBoolean("enable-playing_msg",true)){
+            String fName = ChatColor.translateAlternateColorCodes('&',disc.getName());
+            if (!config.getBoolean("use-colored-name-in-msg",false)){
+                fName = ChatColor.stripColor(fName);
+            }
+            List<Player> players = collectPlayers(block, disc.getVolumeOrDef());
+            TranslatableComponent actBarTr = new TranslatableComponent("record.nowPlaying", fName);
+            new PlayingMsgThread(players, actBarTr).start();
+        }
+        e.setCancelled(true);
+        e.getSource().remove(e.getItem());
+    }
+
     @EventHandler
     public void onJukeBreak(BlockBreakEvent e){
         if (e.isCancelled()) return;
         Block brokenBlock = e.getBlock();
-        if (!brokenBlock.getBlockData().getMaterial().equals(Material.JUKEBOX)){return;}
-        PersistentDataContainer jukeStore = new CustomBlockData(brokenBlock,this);
-        if (jukeStore.has(namespacedKey, PersistentDataType.STRING)) {
-            String sound = jukeStore.get(namespacedKey, PersistentDataType.STRING);
+        if (!brokenBlock.getType().equals(Material.JUKEBOX)) return;
+        PersistentDataContainer jukeStore = getPdc(brokenBlock);
+        if (jukeStore.has(customDiscKey, PersistentDataType.STRING)) {
+            String sound = jukeStore.get(customDiscKey, PersistentDataType.STRING);
             CustomDisc disc = Utils.getDiscBySound(sound,customDiscs);
             if (disc==null){
                 e.getPlayer().sendMessage("TODO This disc does not exists");
                 return;
             }
 
-            jukeStore.remove(namespacedKey);
+            jukeStore.remove(customDiscKey);
             Utils.stopSound(brokenBlock, disc.getSound());
-
 
             ItemStack drop = new ItemStack(disc.getMaterial());
             ItemMeta dropMeta = drop.getItemMeta();
@@ -125,11 +188,11 @@ public final class Main extends JavaPlugin implements Listener {
                 dropMeta.addItemFlags(ItemFlag.values());
             }
 
-
-            String fName=Utils.processDesc(disc.getName(),configuration.getBoolean("use-colored-desc"));
+            String fName=Utils.processDesc(disc.getName(), config.getBoolean("use-colored-desc"));
             dropMeta.setLore(Collections.singletonList(fName));
             drop.setItemMeta(dropMeta);
-            brokenBlock.getWorld().dropItemNaturally(brokenBlock.getLocation(), drop);
+            Item entity = brokenBlock.getWorld().dropItemNaturally(brokenBlock.getLocation(), drop);
+            entity.setPickupDelay(10);
         }
     }
 
@@ -138,30 +201,30 @@ public final class Main extends JavaPlugin implements Listener {
         if (e.getAction() != Action.RIGHT_CLICK_BLOCK){
             return;
         }
-        if (e.getClickedBlock() == null){return;}
+        if (e.getClickedBlock() == null) return;
         Block clickedBlock = e.getClickedBlock();
-        if (!clickedBlock.getBlockData().getMaterial().equals(Material.JUKEBOX)){return;}
+        if (!clickedBlock.getBlockData().getMaterial().equals(Material.JUKEBOX)) return;
+        if (clickedBlock.getBlockData() instanceof Jukebox) {
+            Jukebox jukebox = (Jukebox) clickedBlock.getBlockData();
+            if (jukebox.hasRecord()) return;
+        }
 
-        if (clickedBlock.getBlockData().getAsString(false).contains("has_record=true")){
+        GameMode gameMode = e.getPlayer().getGameMode();
+
+        if (!config.getBoolean("allow-spectator-use",false) && gameMode.equals(GameMode.SPECTATOR)){
             return;
         }
 
-        GameMode pGm = e.getPlayer().getGameMode();
-
-        if (!configuration.getBoolean("allow-spectator-use",false) && pGm.equals(GameMode.SPECTATOR)){
-            return;
-        }
-
-        if (pGm.equals(GameMode.ADVENTURE)){
+        if (gameMode.equals(GameMode.ADVENTURE)){
             return;
         }
 
         //drop if it has disc
-        PersistentDataContainer jukeStore = new CustomBlockData(clickedBlock,this);
-        if (jukeStore.has(namespacedKey, PersistentDataType.STRING)){
-            String sound = jukeStore.get(namespacedKey,PersistentDataType.STRING);
+        PersistentDataContainer jukeStore = getPdc(clickedBlock);
+        if (jukeStore.has(customDiscKey, PersistentDataType.STRING)){
+            String sound = jukeStore.get(customDiscKey,PersistentDataType.STRING);
 //            e.getPlayer().sendMessage("Jukebox has disc "+sound);
-            jukeStore.remove(namespacedKey);
+            jukeStore.remove(customDiscKey);
             Utils.stopSound(clickedBlock,sound);
             CustomDisc disc = Utils.getDiscBySound(sound,customDiscs);
             if (disc == null){
@@ -176,7 +239,7 @@ public final class Main extends JavaPlugin implements Listener {
 
             dropMeta.setCustomModelData(disc.getCmd());
 
-            String fName=Utils.processDesc(disc.getName(),configuration.getBoolean("use-colored-desc"));
+            String fName=Utils.processDesc(disc.getName(), config.getBoolean("use-colored-desc"));
             dropMeta.setLore(Collections.singletonList(fName));
 
             if (drop.getType().isRecord()){
@@ -186,6 +249,7 @@ public final class Main extends JavaPlugin implements Listener {
 
             clickedBlock.getWorld().dropItemNaturally(clickedBlock.getLocation().add(0,1.0,0), drop);
             e.setCancelled(true);
+            e.getPlayer().swingMainHand();
             
         } else {
             ItemStack heldItem = e.getPlayer().getInventory().getItemInMainHand();
@@ -194,46 +258,31 @@ public final class Main extends JavaPlugin implements Listener {
             if (!heldItem.getItemMeta().hasCustomModelData()){
                 return;
             }
-            for (CustomDisc disc : customDiscs){
+            if (!heldItem.getType().isRecord()) return;
+            CustomDisc disc = findDiscByItem(heldItem);
+            if (disc == null) return;
+//            e.getPlayer().sendMessage(ChatColor.GREEN+"Correct disc: "+disc);
+            PersistentDataContainer jukeEmpty = getPdc(clickedBlock);
+            jukeEmpty.set(customDiscKey, PersistentDataType.STRING,disc.getSound());
+            clickedBlock.getWorld().playSound(clickedBlock.getLocation(),disc.getSound(),
+                    SoundCategory.RECORDS, disc.getVolumeOrDef(),1f);
 
-                // check is disc correct
-                boolean correctDisc = false;
-                if (heldItem.getType().equals(disc.getMaterial())){
-                    if (heldItem.getItemMeta().getCustomModelData() == disc.getCmd()) {
-                        correctDisc=true;
-                    }
-                }
-
-                if (correctDisc){
-//                    e.getPlayer().sendMessage(ChatColor.GREEN+"Correct disc");
-//                    e.getPlayer().sendMessage(ChatColor.YELLOW+disc.toString());
-                    if (!e.getPlayer().getInventory().getItemInMainHand().getType().isRecord()){
-                        return;
-                    }
-
-                    PersistentDataContainer jukeEmpty = new CustomBlockData(clickedBlock,this);
-                    jukeEmpty.set(namespacedKey, PersistentDataType.STRING,disc.getSound());
-                    clickedBlock.getWorld().playSound(clickedBlock.getLocation(),disc.getSound(),
-                            SoundCategory.RECORDS, (disc.getVolume() == null ? soundVolume : disc.getVolume()),1f);
-
-                    if (configuration.getBoolean("remove-item-in-creative",false) && pGm.equals(GameMode.CREATIVE)){
-                        e.getPlayer().getInventory().setItemInMainHand(new ItemStack(Material.AIR));
-                    } else if (pGm.equals(GameMode.SURVIVAL)){
-                        e.getPlayer().getInventory().setItemInMainHand(new ItemStack(Material.AIR));
-                    }
-
-                    if (configuration.getBoolean("enable-playing_msg",true)){
-                        String fName = ChatColor.translateAlternateColorCodes('&',disc.getName());
-                        if (!configuration.getBoolean("use-colored-name-in-msg",false)){
-                            fName = ChatColor.stripColor(fName);
-                        }
-                        TranslatableComponent actBarTr = new TranslatableComponent("record.nowPlaying", fName);
-                        new PlayingMsgThread(e,actBarTr).start();
-                    }
-                    e.setCancelled(true);
-                    break;
-                }
+            if (config.getBoolean("remove-item-in-creative",false) && gameMode.equals(GameMode.CREATIVE)){
+                e.getPlayer().getInventory().setItemInMainHand(new ItemStack(Material.AIR));
+            } else if (gameMode.equals(GameMode.SURVIVAL)){
+                e.getPlayer().getInventory().setItemInMainHand(new ItemStack(Material.AIR));
             }
+
+            if (config.getBoolean("enable-playing_msg",true)){
+                String fName = ChatColor.translateAlternateColorCodes('&',disc.getName());
+                if (!config.getBoolean("use-colored-name-in-msg",false)){
+                    fName = ChatColor.stripColor(fName);
+                }
+                List<Player> players = collectPlayers(clickedBlock, disc.getVolumeOrDef());
+                TranslatableComponent actBarTr = new TranslatableComponent("record.nowPlaying", fName);
+                new PlayingMsgThread(players, actBarTr).start();
+            }
+            e.setCancelled(true);
         }
     }
 }

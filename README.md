@@ -24,7 +24,7 @@ The main command is `/customdiscs` or `/cd`
 * `/cd add minecraft:music_disc_chirp my_discs:ping 2006 &cExyl - Ping`
 
 ## How to play any music?
-* Any music that exists in Minecraft client can be played. You can search for guides of adding custom music to game and read [this](https://minecraft.fandom.com/wiki/Sounds.json) article on Minecraft wiki, then you can use custom sound event name. If player doesn't have this sound nothing will happen.
+* Any music that exists in Minecraft client can be played. You can search for guides of adding custom music to game and read [this](https://minecraft.wiki/w/Sounds.json) article on Minecraft wiki, then you can use custom sound event name. If player doesn't have this sound nothing will happen.
 
 ## How to add custom texture to disc?
 * You can use Custom Model Data number for vanilla texture changing or use OptiFine CIT feature

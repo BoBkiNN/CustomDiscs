@@ -9,11 +9,25 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class CommandTabCompleter implements TabCompleter {
     public boolean checkPermission(String perm, CommandSender player){
         return player.hasPermission(perm) || player.isOp();
+    }
+
+    private int calculateMatchScore(String str, String pattern) {
+        int matchCount = 0;
+        for (int i = 0; i < str.length() && i < pattern.length(); i++) {
+            if (str.charAt(i) == pattern.charAt(i)) {
+                matchCount++;
+            } else {
+                break;
+            }
+        }
+
+        return matchCount;
     }
 
     @Override
@@ -68,19 +82,27 @@ public class CommandTabCompleter implements TabCompleter {
                 return Collections.singletonList("");
             }
 //            return Utils.getMaterialList(); //currently disabled due to unknown bug sorry
-            return Utils.getVanillaDiscsList();
+            String st = args[1];
+            List<String> ret = Utils.getVanillaDiscsList();
+            Comparator<String> comparator = Comparator.comparingInt((s) -> calculateMatchScore(s, st));
+            ret.sort(comparator.reversed());
+            return ret;
         }
         if (args.length==3 && args[0].equalsIgnoreCase("add")){
             if (!checkPermission("customdiscs.add", sender)){
                 return Collections.singletonList("");
             }
-            return Utils.getSoundsList();
+            String st = args[2];
+            List<String> ret = Utils.getSoundsList();
+            Comparator<String> comparator = Comparator.comparingInt((s) -> calculateMatchScore(s, st));
+            ret.sort(comparator.reversed());
+            return ret;
         }
         if (args.length==4 && args[0].equalsIgnoreCase("add")){
             if (!checkPermission("customdiscs.add", sender)){
                 return Collections.singletonList("");
             }
-            String cmdCo = Main.configuration.getString("messages.add-cmd.cmd-tab-complete","<CustomModelData-int>");
+            String cmdCo = Main.config.getString("messages.add-cmd.cmd-tab-complete","<CustomModelData-int>");
             cmdCo = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&',cmdCo));
             return Collections.singletonList(cmdCo);
         }
@@ -88,7 +110,7 @@ public class CommandTabCompleter implements TabCompleter {
             if (!checkPermission("customdiscs.add", sender)){
                 return Collections.singletonList("");
             }
-            String nCo = Main.configuration.getString("messages.add-cmd.name-tab-complete","<displayName>");
+            String nCo = Main.config.getString("messages.add-cmd.name-tab-complete","<displayName>");
             nCo = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&',nCo));
             return Collections.singletonList(nCo);
         }

@@ -43,6 +43,10 @@ public class CustomDisc implements ConfigurationSerializable {
         return volume;
     }
 
+    public float getVolumeOrDef(){
+        return volume != null ? volume : Main.DEFAULT_SOUND_VOLUME;
+    }
+
     @Override
     public String toString() {
         return "CustomDisc{" +

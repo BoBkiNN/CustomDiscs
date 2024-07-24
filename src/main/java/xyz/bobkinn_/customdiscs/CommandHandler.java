@@ -18,11 +18,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 
 public class CommandHandler implements CommandExecutor {
 
     public String getTranslate(String key, String def){
-        return ChatColor.translateAlternateColorCodes('&', Main.configuration.getString(key,def));
+        return ChatColor.translateAlternateColorCodes('&', Main.config.getString(key,def));
     }
 
     public void helpCmd(CommandSender sender){
@@ -106,7 +107,7 @@ public class CommandHandler implements CommandExecutor {
             if (item.getType().isRecord()){
                 meta.addItemFlags(ItemFlag.values());
             }
-            String fName=Utils.processDesc(disc.getName(),Main.configuration.getBoolean("use-colored-desc"));
+            String fName=Utils.processDesc(disc.getName(),Main.config.getBoolean("use-colored-desc"));
             meta.setLore(Collections.singletonList(fName));
             item.setItemMeta(meta);
             if (args.length>=3){
@@ -116,7 +117,7 @@ public class CommandHandler implements CommandExecutor {
                     sender.sendMessage(msg);
                 } else {
                     p.getInventory().addItem(item);
-                    String msg = Main.configuration.getString("messages.get-cmd.success","&cGiven disc &b№%id% &cto &e%player%");
+                    String msg = Main.config.getString("messages.get-cmd.success","&cGiven disc &b№%id% &cto &e%player%");
                     msg = msg.replace("%id%", String.valueOf(id)).replace("%player%", p.getName());
                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&',msg));
                 }
@@ -124,7 +125,7 @@ public class CommandHandler implements CommandExecutor {
                 if (sender instanceof Player){
                     Player player = (Player) sender;
                     player.getInventory().addItem(item);
-                    String msg = Main.configuration.getString("messages.get-cmd.success","&cGiven disc &b№%id% &cto &e%player%");
+                    String msg = Main.config.getString("messages.get-cmd.success","&cGiven disc &b№%id% &cto &e%player%");
                     msg = msg.replace("%id%", String.valueOf(id)).replace("%player%", player.getName());
                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&',msg));
                 } else {
@@ -167,7 +168,7 @@ public class CommandHandler implements CommandExecutor {
                 sender.sendMessage(msg);
                 return true;
             }
-            List<Map<?, ?>> raw = Main.configuration.getMapList("discs");
+            List<Map<?, ?>> raw = Main.config.getMapList("discs");
             if (id > raw.size()){
                 Main.customDiscs.remove(id - 1);
             } else {
@@ -176,21 +177,21 @@ public class CommandHandler implements CommandExecutor {
                 return true;
             }
             raw.remove(id-1);
-            Main.configuration.set("discs",raw);
+            Main.config.set("discs",raw);
             File configFile = new File(Main.plugin.getDataFolder(),"config.yml");
             File configBackup = new File(Main.plugin.getDataFolder(),"config-backup.yml");
 
             try {
                 FileUtils.copyFile(configFile,configBackup);
-                Main.configuration.save(new File(Main.plugin.getDataFolder(),"config.yml"));
-                if (!Main.configuration.getBoolean("messages.disable-config-warning",false)){
-                    String msg = Main.configuration.getString("messages.config-warning","&cWarning!&e config.yml&c file was rewritten, old copy of file was saved as&e config-backup.yml&c. You can disable this warning in config");
+                Main.config.save(new File(Main.plugin.getDataFolder(),"config.yml"));
+                if (!Main.config.getBoolean("messages.disable-config-warning",false)){
+                    String msg = Main.config.getString("messages.config-warning","&cWarning!&e config.yml&c file was rewritten, old copy of file was saved as&e config-backup.yml&c. You can disable this warning in config");
                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&',msg));
                 }
 
                 return true;
             } catch (IOException e) {
-                e.printStackTrace();
+                Main.LOGGER.log(Level.SEVERE, "Failed to save config", e);
             }
             return true;
         }
@@ -209,13 +210,13 @@ public class CommandHandler implements CommandExecutor {
             } //add1 i2 s3 c4 n5
 
             if (Material.matchMaterial(args[1])==null){
-                String msg = Main.configuration.getString("messages.add-cmd.material-not-exists","&cMaterial &e%item%&c not found");
+                String msg = Main.config.getString("messages.add-cmd.material-not-exists","&cMaterial &e%item%&c not found");
                 msg=msg.replace("%item%",args[1]);
                 sender.sendMessage(ChatColor.translateAlternateColorCodes('&',msg));
                 return true;
             }
             int cmd;
-            String msg = Main.configuration.getString("messages.add-cmd.not-int","&cCustomModelData must be positive integer");
+            String msg = Main.config.getString("messages.add-cmd.not-int","&cCustomModelData must be positive integer");
             try {
                 if (Integer.parseInt(args[3])<=0){
                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&',msg));
@@ -240,26 +241,26 @@ public class CommandHandler implements CommandExecutor {
             }
             name.deleteCharAt(name.length()-1);
             CustomDisc disc = new CustomDisc(cmd,Material.matchMaterial(args[1]),args[2],name.toString(), null);
-            List<Map<?, ?>> raw = Main.configuration.getMapList("discs");
+            List<Map<?, ?>> raw = Main.config.getMapList("discs");
             raw.add(disc.serialize());
-            Main.configuration.set("discs", raw);
+            Main.config.set("discs", raw);
             Main.customDiscs.add(disc);
             File configFile = new File(Main.plugin.getDataFolder(),"config.yml");
             File configBackup = new File(Main.plugin.getDataFolder(),"config-backup.yml");
 
             try {
                 FileUtils.copyFile(configFile,configBackup);
-                Main.configuration.save(new File(Main.plugin.getDataFolder(),"config.yml"));
-                if (!Main.configuration.getBoolean("messages.disable-config-warning",false)){
-                    String msg3 = Main.configuration.getString("messages.config-warning","&cWarning!&e config.yml&c file was rewritten, old copy of file was saved as&e config-backup.yml&c. You can disable this warning in config");
+                Main.config.save(new File(Main.plugin.getDataFolder(),"config.yml"));
+                if (!Main.config.getBoolean("messages.disable-config-warning",false)){
+                    String msg3 = Main.config.getString("messages.config-warning","&cWarning!&e config.yml&c file was rewritten, old copy of file was saved as&e config-backup.yml&c. You can disable this warning in config");
                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&',msg3));
                 }
-                String msg1 = Main.configuration.getString("messages.add-cmd.success","&cNew disc &e№%id%&c created");
+                String msg1 = Main.config.getString("messages.add-cmd.success","&cNew disc &e№%id%&c created");
                 msg1 = msg1.replace("%id%",String.valueOf(Main.customDiscs.indexOf(disc)+1));
                 msg1 = ChatColor.translateAlternateColorCodes('&',msg1);
                 sender.sendMessage(msg1);
             } catch (IOException e) {
-                e.printStackTrace();
+                Main.LOGGER.log(Level.SEVERE, "Failed to save config", e);
             }
 
         }
@@ -269,9 +270,9 @@ public class CommandHandler implements CommandExecutor {
                 sender.sendMessage(Utils.noPermMsg());
                 return true;
             }
-            String listTop = Main.configuration.getString("messages.list-cmd.top","&a----==== &bLoaded custom discs (%count%):");
-            String listEntry = Main.configuration.getString("messages.list-cmd.entry","&c№%index% &7- S: &c%sound%&7, N: &c%name%&7,\nCMD: &c%cmd%&7, M: &c%item%");
-            String listBottom = Main.configuration.getString("messages.list-cmd.bottom","none");
+            String listTop = Main.config.getString("messages.list-cmd.top","&a----==== &bLoaded custom discs (%count%):");
+            String listEntry = Main.config.getString("messages.list-cmd.entry","&c№%index% &7- S: &c%sound%&7, N: &c%name%&7,\nCMD: &c%cmd%&7, M: &c%item%");
+            String listBottom = Main.config.getString("messages.list-cmd.bottom","none");
             listTop=ChatColor.translateAlternateColorCodes('&',listTop);
             listEntry=ChatColor.translateAlternateColorCodes('&',listEntry);
             if (!listBottom.equalsIgnoreCase("none")){

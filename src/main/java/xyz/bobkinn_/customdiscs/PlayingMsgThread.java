@@ -3,39 +3,40 @@ package xyz.bobkinn_.customdiscs;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TranslatableComponent;
-import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.entity.Player;
 
-public class PlayingMsgThread extends Thread{
-    PlayerInteractEvent e;
+import java.util.List;
+import java.util.logging.Level;
+
+public class PlayingMsgThread extends Thread {
+    List<Player> players;
     TranslatableComponent actBarTr;
-    PlayingMsgThread(PlayerInteractEvent e, TranslatableComponent msg){
-        this.e=e;
+    PlayingMsgThread(List<Player> players, TranslatableComponent msg){
+        this.players = players;
         this.actBarTr=msg;
+    }
+
+    private void send(ChatColor color){
+        actBarTr.setColor(color);
+        players.forEach(p -> p.spigot().sendMessage(ChatMessageType.ACTION_BAR, actBarTr));
     }
 
     @Override
     public void run() {
         try {
-            actBarTr.setColor(ChatColor.GREEN);
-            e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, actBarTr);
+            send(ChatColor.GREEN);
             sleep(600);
-            actBarTr.setColor(ChatColor.DARK_PURPLE);
-            e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, actBarTr);
+            send(ChatColor.DARK_PURPLE);
             sleep(400);
-            actBarTr.setColor(ChatColor.DARK_BLUE);
-            e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, actBarTr);
+            send(ChatColor.DARK_BLUE);
             sleep(400);
-            actBarTr.setColor(ChatColor.DARK_GREEN);
-            e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, actBarTr);
+            send(ChatColor.DARK_GREEN);
             sleep(300);
-            actBarTr.setColor(ChatColor.DARK_AQUA);
-            e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, actBarTr);
+            send(ChatColor.DARK_AQUA);
             sleep(50);
-            actBarTr.setColor(ChatColor.GRAY);
-            e.getPlayer().spigot().sendMessage(ChatMessageType.ACTION_BAR, actBarTr);
-            interrupt();
+            send(ChatColor.GRAY);
         } catch (InterruptedException e){
-            e.printStackTrace();
+            Main.LOGGER.log(Level.SEVERE, "Unexpected exception in PlayingMsgThread", e);
         }
     }
 }

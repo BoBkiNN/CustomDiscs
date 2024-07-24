@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Utils {
@@ -46,7 +47,7 @@ public class Utils {
                 try {
                     key = material.getKey();
                 } catch (IllegalArgumentException e) {
-                    Main.logger.warning("e" + material);
+                    Main.LOGGER.log(Level.WARNING, material.name(), e);
                     continue;
                 }
                 discs.add(key.toString());
@@ -84,19 +85,19 @@ public class Utils {
 
     public static String noPermMsg(){
         if (isPaper()){
-            if (Main.configuration.getBoolean("override-paper-no-permission-msg",false)){
-                String noPermMsg = Main.configuration.getString("messages.no-permission","&cI'm sorry, but you do not have permission to perform this command.");
+            if (Main.config.getBoolean("override-paper-no-permission-msg",false)){
+                String noPermMsg = Main.config.getString("messages.no-permission","&cI'm sorry, but you do not have permission to perform this command.");
                 return ChatColor.translateAlternateColorCodes('&',noPermMsg);
             } else {
                 String noPermMsg = YamlConfiguration.loadConfiguration(new File("paper.yml")).getString("messages.no-permission");
                 if (noPermMsg==null){
-                    noPermMsg=Main.configuration.getString("messages.no-permission","&cI'm sorry, but you do not have permission to perform this command.");
+                    noPermMsg=Main.config.getString("messages.no-permission","&cI'm sorry, but you do not have permission to perform this command.");
 
                 }
                 return ChatColor.translateAlternateColorCodes('&',noPermMsg);
             }
         } else {
-            String noPermMsg = Main.configuration.getString("messages.no-permission","&cI'm sorry, but you do not have permission to perform this command.");
+            String noPermMsg = Main.config.getString("messages.no-permission","&cI'm sorry, but you do not have permission to perform this command.");
             return ChatColor.translateAlternateColorCodes('&',noPermMsg);
         }
     }
