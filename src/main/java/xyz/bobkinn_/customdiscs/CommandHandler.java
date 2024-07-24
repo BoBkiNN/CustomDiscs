@@ -169,7 +169,7 @@ public class CommandHandler implements CommandExecutor {
                 return true;
             }
             List<Map<?, ?>> raw = Main.config.getMapList("discs");
-            if (id > raw.size()){
+            if (id <= raw.size() && id > 0){
                 Main.customDiscs.remove(id - 1);
             } else {
                 String msg = getTranslate("messages.id-not-found","&cDisc with this id not found");
@@ -180,6 +180,11 @@ public class CommandHandler implements CommandExecutor {
             Main.config.set("discs",raw);
             File configFile = new File(Main.plugin.getDataFolder(),"config.yml");
             File configBackup = new File(Main.plugin.getDataFolder(),"config-backup.yml");
+
+            String msgSuccess = ChatColor.translateAlternateColorCodes('&',
+                    Main.config.getString("messages.del-cmd.success", "&cDisc &e№%id%&c deleted")
+                    .replace("%id%", String.valueOf(id)));
+            sender.sendMessage(msgSuccess);
 
             try {
                 FileUtils.copyFile(configFile,configBackup);

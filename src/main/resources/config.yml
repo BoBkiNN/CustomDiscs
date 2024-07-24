@@ -28,6 +28,7 @@ messages:
     use: "&cUse &e/cd get <id> [player]"
   del-cmd:
     use: "&cUse: &e/cd del <id>"
+    success: "&cDisc &e№%id%&c deleted"
   add-cmd:
     use: '&cUse: &e/cd add <item> <sound> <cmd> <name>'
     use-example: "&cExample: &e/cd add minecraft:music_disc_cat minecraft:music.game 2005 &2Menu Music"

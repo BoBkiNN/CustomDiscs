@@ -170,9 +170,8 @@ public final class Main extends JavaPlugin implements Listener {
         PersistentDataContainer jukeStore = getPdc(brokenBlock);
         if (jukeStore.has(customDiscKey, PersistentDataType.STRING)) {
             String sound = jukeStore.get(customDiscKey, PersistentDataType.STRING);
-            CustomDisc disc = Utils.getDiscBySound(sound,customDiscs);
+            CustomDisc disc = Utils.getDiscBySound(sound, customDiscs);
             if (disc==null){
-                e.getPlayer().sendMessage("TODO This disc does not exists");
                 return;
             }
 
